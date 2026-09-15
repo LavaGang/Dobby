@@ -21,11 +21,14 @@ jobs:
 
       - name: Build x86
         run: |
-          msbuild -m -p:Configuration=Release -t:dobby build32/Dobby.sln
+          cd build32
+          dir
+          msbuild -m -p:Configuration=Release -t:dobby Dobby.sln
 
       - name: Build x64
         run: |
-          msbuild -m -p:Configuration=Release -t:dobby build64/Dobby.sln
+          cd build64
+          msbuild -m -p:Configuration=Release -t:dobby Dobby.sln
 
       - name: Collect artifacts
         shell: cmd
