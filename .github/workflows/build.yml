@@ -56,6 +56,7 @@ jobs:
         run: |
           cmake -DCMAKE_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build64
           cmake -DCMAKE_SYSTEM_PROCESSOR=x86 -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_C_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32" -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build86
+          cmake -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_C_FLAGS="-m32" -DCMAKE_SHARED_LINKER_FLAGS="-m32" -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build_arm64
           
       - name: Build x64
         run: |
@@ -64,12 +65,17 @@ jobs:
       - name: Build x86
         run: |
           cd build86 && make dobby
+
+      - name: Build arm64
+        run: |
+          cd build_arm64 && make dobby
           
       - name: Collect artifacts
         run: |
           mkdir build_result
           cp build86/libdobby.a build_result/libdobby_x86.a
           cp build64/libdobby.a build_result/libdobby_x64.a
+          cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -87,15 +93,21 @@ jobs:
       - name: Configure CMake
         run: |
           cmake -DCMAKE_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build64
+          cmake -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build_arm64
           
       - name: Build x64
         run: |
           cd build64 && make dobby
+
+      - name: Build arm64
+        run: |
+          cd build_arm64 && make dobby
           
       - name: Collect artifacts
         run: |
           mkdir build_result
           cp build64/libdobby.a build_result/libdobby_x64.a
+          cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
