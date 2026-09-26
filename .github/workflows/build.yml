@@ -18,7 +18,7 @@ jobs:
         run: |
           cmake -DCMAKE_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A x64 -B build64
           cmake -DCMAKE_SYSTEM_PROCESSOR=x86 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A Win32 -B build32
-          cmake -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A arm64 -B build_arm64
+          cmake -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A __AARCH64EL__ -B build_arm64
 
       - name: Build x86
         run: |
