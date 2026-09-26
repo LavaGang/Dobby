@@ -18,6 +18,7 @@ jobs:
         run: |
           cmake -DCMAKE_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A x64 -B build64
           cmake -DCMAKE_SYSTEM_PROCESSOR=x86 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A Win32 -B build32
+          cmake -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -A arm64 -B build_arm64
 
       - name: Build x86
         run: |
@@ -29,12 +30,18 @@ jobs:
           cd build64
           msbuild -m -p:Configuration=Release -t:dobby Dobby.slnx
 
+      - name: Build arm64
+        run: |
+          cd build_arm64
+          msbuild -m -p:Configuration=Release -t:dobby Dobby.slnx
+
       - name: Collect artifacts
         shell: cmd
         run: |
           mkdir build_result
           copy "build32\Release\dobby.lib" "build_result\dobby_x86.lib"
           copy "build64\Release\dobby.lib" "build_result\dobby_x64.lib"
+          copy "build_arm64\Release\dobby.lib" "build_result\dobby_arm64.lib"
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
