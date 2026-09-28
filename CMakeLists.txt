@@ -72,6 +72,7 @@ endif()
 
 if(SYSTEM.Darwin)
   # -lstdc++
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-x -Wl,-S")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-exported_symbol,_DobbyBuildVersion -Wl,-exported_symbol,_DobbyHook -Wl,-exported_symbol,_DobbyPrepare -Wl,-exported_symbol,_DobbyCommit -Wl,-exported_symbol,_DobbyDestroy")
