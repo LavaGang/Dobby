@@ -174,6 +174,8 @@ if(COMPILER.Clang)
     set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -arch armv7 -x assembler-with-cpp")
   elseif(PROCESSOR.AARCH64)
     set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -arch arm64 -x assembler-with-cpp")
+  elseif(PROCESSOR.X86_64)
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -arch x86_64 -x assembler-with-cpp")
   endif()
 endif()
 
