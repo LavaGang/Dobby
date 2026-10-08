@@ -28,7 +28,8 @@ std::vector<MemoryRegion> ProcessRuntimeUtility::GetProcessMemoryLayout() {
 
   while (!feof(fp)) {
     char line_buffer[LINE_MAX + 1];
-    fgets(line_buffer, LINE_MAX, fp);
+    if (!fgets(line_buffer, LINE_MAX, fp))
+      break;
 
     // ignore the rest of characters
     if (strlen(line_buffer) == LINE_MAX && line_buffer[LINE_MAX] != '\n') {
@@ -69,12 +70,12 @@ std::vector<MemoryRegion> ProcessRuntimeUtility::GetProcessMemoryLayout() {
     }
 
     MemoryPermission permission;
-    if (permissions[0] == 'r' && permissions[1] == 'w') {
+    if (permissions[0] == 'r' && permissions[1] == 'w' && permissions[2] == 'x') {
+      permission = MemoryPermission::kReadWriteExecute;
+    } else if (permissions[0] == 'r' && permissions[1] == 'w') {
       permission = MemoryPermission::kReadWrite;
     } else if (permissions[0] == 'r' && permissions[2] == 'x') {
       permission = MemoryPermission::kReadExecute;
-    } else if (permissions[0] == 'r' && permissions[1] == 'w' && permissions[2] == 'x') {
-      permission = MemoryPermission::kReadWriteExecute;
     } else {
       permission = MemoryPermission::kNoAccess;
     }
@@ -103,7 +104,8 @@ static std::vector<RuntimeModule> get_process_map_with_proc_maps() {
 
   while (!feof(fp)) {
     char line_buffer[LINE_MAX + 1];
-    fgets(line_buffer, LINE_MAX, fp);
+    if (!fgets(line_buffer, LINE_MAX, fp))
+      break;
 
     // ignore the rest of characters
     if (strlen(line_buffer) == LINE_MAX && line_buffer[LINE_MAX] != '\n') {
@@ -163,7 +165,7 @@ static std::vector<RuntimeModule> get_process_map_with_proc_maps() {
       path_buffer[strlen(path_buffer) - 1] = 0;
     }
     strncpy(module.path, path_buffer, sizeof(module.path));
-    module.load_address = (void *)region_start;
+    module.base = (void *)region_start;
     ProcessModuleMap.push_back(module);
 
 #if 0
@@ -191,11 +193,11 @@ static std::vector<RuntimeModule> get_process_map_with_linker_iterator() {
         if (info->dlpi_name && info->dlpi_name[0] == '/')
           strcpy(module.path, info->dlpi_name);
 
-        module.load_address = (void *)info->dlpi_addr;
+        module.base = (void *)info->dlpi_addr;
         for (size_t i = 0; i < info->dlpi_phnum; ++i) {
           if (info->dlpi_phdr[i].p_type == PT_LOAD) {
             uintptr_t load_bias = (info->dlpi_phdr[i].p_vaddr - info->dlpi_phdr[i].p_offset);
-            module.load_address = (void *)((addr_t)module.load_address + load_bias);
+            module.base = (void *)((addr_t)module.base + load_bias);
             break;
           }
         }
