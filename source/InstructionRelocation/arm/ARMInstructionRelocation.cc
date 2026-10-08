@@ -9,6 +9,8 @@
 #include "core/modules/assembler/assembler-arm.h"
 #include "core/modules/codegen/codegen-arm.h"
 
+#include <algorithm>
+
 using namespace zz;
 using namespace zz::arm;
 
@@ -55,35 +57,98 @@ static void ARMRelocateSingleInstr(TurboAssembler *turbo_assembler, int32_t inst
     uint32_t P_W = (P << 1) | W;
     do {
       // LDR (literal)
-      if (o1 == 1 && o2 == 0 && P_W != 0b01 && Rn == 0b1111) {
-        goto load_literal_fix_scheme;
-      }
-      if (o1 == 1 && o2 == 1 && P_W != 0b01 && Rn == 0b1111) {
+      if (o1 == 1 && P_W != 0b01 && Rn == pc.code()) {
         goto load_literal_fix_scheme;
       }
       break;
     load_literal_fix_scheme:
-      addr32_t target_address = 0;
+      addr32_t target_address = 0; // origin pc
       if (U == 0b1)
         target_address = from_pc + imm12;
       else
         target_address = from_pc - imm12;
+
+      Register intermediateReg = Register::R(Rt == pc.code() ? VOLATILE_REGISTER.code() : Rt);
       Register regRt = Register::R(Rt);
 
       RelocLabelEntry *pseudoDataLabel = new RelocLabelEntry(target_address);
       _ AppendRelocLabelEntry(pseudoDataLabel);
 
       // ===
-      if (regRt.code() == pc.code()) {
-        _ Ldr(VOLATILE_REGISTER, pseudoDataLabel);
-        _ ldr(regRt, MemOperand(VOLATILE_REGISTER));
-      } else {
-        _ Ldr(regRt, pseudoDataLabel);
-        _ ldr(regRt, MemOperand(regRt));
-      }
+      _ Ldr(intermediateReg, pseudoDataLabel);
+      _ ldr(regRt, MemOperand(intermediateReg));
+
       // ===
       is_instr_relocated = true;
     } while (0);
+  }
+
+  // handle some kinds of pc-relative instructions
+  if (cond != 0b1111 && (op0 == 0b000 || op0 == 0b011)) {
+    uint32_t P, U, o2, W, o1, Rn, Rt, imm5, type, Rm;
+    P = bit(insn, 24);
+    U = bit(insn, 23);
+    o2 = bit(insn, 22);
+    W = bit(insn, 21);
+    o1 = bit(insn, 20);
+    Rn = bits(insn, 16, 19);
+    Rt = bits(insn, 12, 15);
+    imm5 = bits(insn, 7, 11);
+    type = bits(insn, 5, 6);
+    Rm = bits(insn, 0, 3);
+    uint32_t P_W = (P << 1) | W;
+    if (Rn == pc.code() || Rm == pc.code()) {
+      do {
+        if (op0 == 0b000 && P == 0 && U == 1 && o2 == 0 && W == 0 && o1 == 0) {
+          // consecutive LDR (literal) - ADD (register, PC-relative)
+          // example:
+          //     ldr r1, [pc, #8]
+          //     add r1, pc, r1    ; <- we are here
+          //     str r0, [r1]
+          //     bx lr
+          //     dcd vmaddr_offset_relative_to_pc
+          goto inject_insn_change_Rn;
+        }
+        if (op0 == 0b011 && o1 == 1 && o2 == 0 && P_W != 0b01) {
+          // consecutive LDR (literal) - LDR (register, PC-relative)
+          // example:
+          //     ldr r0, [pc, #4]
+          //     ldr r0, [pc, r0]  ; <- we are here
+          //     bx lr
+          //     dcd vmaddr_offset_relative_to_pc
+          goto inject_insn_change_Rn;
+        }
+        break;
+        inject_insn_change_Rn:
+        int RnOffset = 16;
+        if (Rm == pc.code()) {
+          std::swap(Rm, Rn);
+          RnOffset = 0;
+        }
+        Register RmReg = Register::R(Rm);
+
+        // change Rn to something else than pc, fill it with value of origin pc
+        int32_t RnVal = relo_cur_src_vmaddr(ctx); // origin pc
+        Register RnReg = Register::R(Rm == 1 ? 0 : 1);
+        RegisterList RnRegList(RnReg);
+        insn &= ~(0x0f << RnOffset);
+        insn |= RnReg.code() << RnOffset;
+
+        auto RnValLabel = RelocLabel::withData(RnVal);
+        _ AppendRelocLabel(RnValLabel);
+
+        if (Rn != Rt) {
+          _ push(RnRegList);
+        }
+        _ Ldr(RnReg, RnValLabel);
+        _ EmitARMInst(insn);
+        if (Rn != Rt) {
+          _ pop(RnRegList);
+        }
+
+        is_insn_relocated = true;
+      } while (0);
+    }
   }
 
   // Data-processing and miscellaneous instructions
