@@ -73,7 +73,6 @@ static int GenRelocateCodeFixed(void *buffer, AssemblyCodeChunk *origin, Assembl
       addr_t orig_dst_ip = curr_orig_ip + offset;
 
       if (insn.primary_opcode == 0xE0) { // LOOPNZ/LOOPNE
-#if defined(TARGET_ARCH_IA32)
         // preserve flags, decrement ECX, restore flags
         __ Emit<int8_t>(0x9C); // PUSHF
         __ Emit<int8_t>(0xFF);
@@ -89,31 +88,6 @@ static int GenRelocateCodeFixed(void *buffer, AssemblyCodeChunk *origin, Assembl
         __ Emit<int8_t>(0x0F); // JNZ rel32
         __ Emit<int8_t>(0x85);
         emit_rel32_label(code_buffer, x86_insn_encode_start, curr_relo_ip, orig_dst_ip);
-#else
-        // preserve flags, decrement RCX, restore flags
-        __ Emit<int8_t>(0x9C); // PUSHFQ
-        __ Emit<int8_t>(0x48);
-        __ Emit<int8_t>(0xFF);
-        __ Emit<int8_t>(0xC9); // DEC RCX (REX.W FF /1, ModRM=C9)
-        __ Emit<int8_t>(0x9D); // POPFQ
-
-        // if RCX == 0, skip the whole conditional jump sequence (2 + 2 + 14 = 18 bytes)
-        __ Emit<int8_t>(0xE3); // JRCXZ +18
-        __ Emit<int8_t>(18);
-
-        // if ZF == 0, stage-1: short JNZ to stage-2
-        const uint8_t label_jcc_cond_true_stage2 = 2;
-        __ Emit<int8_t>(0x75); // JNZ rel8
-        __ Emit<int8_t>(label_jcc_cond_true_stage2);
-
-        // else: short jump over the absolute jump
-        const uint8_t label_cond_false = 6 + 8; // size of abs jmp
-        __ Emit<int8_t>(0xEB);                  // JMP rel8
-        __ Emit<int8_t>(label_cond_false);
-
-        // stage-2: absolute jump to original destination
-        codegen_x64_jmp_absolute_addr(code_buffer, orig_dst_ip);
-#endif
       } else {
         // LOOPZ/LOOP
         UNIMPLEMENTED();
