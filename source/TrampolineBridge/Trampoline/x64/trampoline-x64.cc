@@ -53,12 +53,18 @@ CodeBufferBase *GenerateNormalTrampolineBuffer(addr_t from, addr_t to) {
   TurboAssembler turbo_assembler_((void *)from);
 #define _ turbo_assembler_.
 
+  CodeGen codegen(&turbo_assembler_);
   // branch
   void **branch_stub = AllocIndirectStub(from);
-  *branch_stub = (void *)to;
-
-  CodeGen codegen(&turbo_assembler_);
-  codegen.JmpNearIndirect((uint64_t)branch_stub);
+  if (branch_stub != 0) {
+    *(addr_t *)branch_stub = to;
+    codegen.JmpNearIndirect((addr_t)branch_stub);
+  } else {
+    // No free page within +-2GB of the target: embed the destination after the jump instead,
+    // jmp *(rip + 0); .quad to (14 bytes)
+    codegen.JmpNearIndirect(from + 6);
+    turbo_assembler_.GetCodeBuffer()->Emit64(to);
+  }
 
   CodeBufferBase *result = NULL;
   result = turbo_assembler_.GetCodeBuffer()->Copy();

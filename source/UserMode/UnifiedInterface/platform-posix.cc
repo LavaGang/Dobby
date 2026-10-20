@@ -132,10 +132,9 @@ int OSMemory::PageSize() {
 void *OSMemory::Allocate(void *address, int size, MemoryPermission access) {
   int prot = GetProtectionFromMemoryPermission(access);
 
+  // fixed_address is passed as a hint rather than with MAP_FIXED: MAP_FIXED silently replaces whatever is mapped
+  // there, including memory the process layout scan cannot see (e.g. Rosetta 2's own mappings).
   int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-  if (address != NULL) {
-    flags = flags | MAP_FIXED;
-  }
   void *result = mmap(address, size, prot, flags, kMmapFd, kMmapFdOffset);
   if (result == MAP_FAILED)
     return nullptr;

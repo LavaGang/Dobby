@@ -122,7 +122,8 @@ std::vector<RuntimeModule> ProcessRuntimeUtility::GetProcessModuleMap() {
 RuntimeModule ProcessRuntimeUtility::GetProcessModule(const char *name) {
   std::vector<RuntimeModule> ProcessModuleMap = GetProcessModuleMap();
   for (auto module : ProcessModuleMap) {
-    if (strstr(module.path, name) != 0) {
+    auto filename = strrchr(module.path, '/');
+    if (filename && strcmp(filename + 1, name) == 0) {
       return module;
     }
   }
