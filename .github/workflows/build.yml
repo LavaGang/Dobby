@@ -8,7 +8,7 @@ jobs:
     name: Windows Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: setup-msbuild
         uses: microsoft/setup-msbuild@v1.3
@@ -54,7 +54,7 @@ jobs:
     name: Linux Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       
       - name: Install deps
         run: |
@@ -97,7 +97,7 @@ jobs:
     name: macOS Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Configure CMake
         run: |
@@ -130,7 +130,7 @@ jobs:
 
     steps:
       # Step 1: Checkout the code
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       # Step 2: Set up Android ND
       - name: Set up Android NDK
