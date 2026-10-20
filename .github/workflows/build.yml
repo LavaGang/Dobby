@@ -44,7 +44,7 @@ jobs:
       #    copy "build_arm64\Release\dobby.lib" "build_result\dobby_arm64.lib"
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Windows
           path: build_result
@@ -87,7 +87,7 @@ jobs:
           cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Linux
           path: build_result
@@ -119,7 +119,7 @@ jobs:
           cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macOS
           path: build_result
@@ -181,7 +181,7 @@ jobs:
 
       # Step 8: Upload the build artifacts to GitHub Actions
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Android_ARM64-v8a
           path: build_result
