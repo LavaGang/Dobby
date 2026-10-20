@@ -11,10 +11,10 @@ jobs:
     name: Windows Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.3
 
       - name: Configure CMake
         shell: cmd
@@ -47,7 +47,7 @@ jobs:
       #    copy "build_arm64\Release\dobby.lib" "build_result\dobby_arm64.lib"
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Windows
           path: build_result
@@ -57,7 +57,7 @@ jobs:
     name: Linux Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       
       - name: Install deps
         run: |
@@ -90,7 +90,7 @@ jobs:
           cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Linux
           path: build_result
@@ -100,7 +100,7 @@ jobs:
     name: macOS Build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Configure CMake
         run: |
@@ -122,7 +122,7 @@ jobs:
           cp build_arm64/libdobby.a build_result/libdobby_arm64.a
           
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macOS
           path: build_result
@@ -133,7 +133,7 @@ jobs:
 
     steps:
       # Step 1: Checkout the code
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       # Step 2: Set up Android ND
       - name: Set up Android NDK
@@ -184,7 +184,7 @@ jobs:
 
       # Step 8: Upload the build artifacts to GitHub Actions
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Android_ARM64-v8a
           path: build_result
