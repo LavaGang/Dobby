@@ -74,19 +74,19 @@ static int GenRelocateCodeFixed(void *buffer, AssemblyCodeChunk *origin, Assembl
 
       if (insn.primary_opcode == 0xE0) { // LOOPNZ/LOOPNE
         // preserve flags, decrement ECX, restore flags
-        __ Emit<int8_t>(0x9C); // PUSHF
-        __ Emit<int8_t>(0xFF);
-        __ Emit<int8_t>(0xC9); // DEC ECX (FF /1, ModRM=C9)
-        __ Emit<int8_t>(0x9D); // POPF
+        __ Emit8(0x9C); // PUSHF
+        __ Emit8(0xFF);
+        __ Emit8(0xC9); // DEC ECX (FF /1, ModRM=C9)
+        __ Emit8(0x9D); // POPF
 
         // if ECX == 0, skip the conditional jump below
-        __ Emit<int8_t>(0xE3); // JECXZ +6
-        __ Emit<int8_t>(0x06);
+        __ Emit8(0xE3); // JECXZ +6
+        __ Emit8(0x06);
 
         // if ZF == 0, jump to original destination
         x86_insn_encode_begin();
-        __ Emit<int8_t>(0x0F); // JNZ rel32
-        __ Emit<int8_t>(0x85);
+        __ Emit8(0x0F); // JNZ rel32
+        __ Emit8(0x85);
         emit_rel32_label(code_buffer, x86_insn_encode_start, curr_relo_ip, orig_dst_ip);
       } else {
         // LOOPZ/LOOP

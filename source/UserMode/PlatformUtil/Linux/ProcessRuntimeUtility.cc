@@ -165,7 +165,7 @@ static std::vector<RuntimeModule> get_process_map_with_proc_maps() {
       path_buffer[strlen(path_buffer) - 1] = 0;
     }
     strncpy(module.path, path_buffer, sizeof(module.path));
-    module.base = (void *)region_start;
+    module.load_address = (void *)region_start;
     ProcessModuleMap.push_back(module);
 
 #if 0
@@ -193,11 +193,11 @@ static std::vector<RuntimeModule> get_process_map_with_linker_iterator() {
         if (info->dlpi_name && info->dlpi_name[0] == '/')
           strcpy(module.path, info->dlpi_name);
 
-        module.base = (void *)info->dlpi_addr;
+        module.load_address = (void *)info->dlpi_addr;
         for (size_t i = 0; i < info->dlpi_phnum; ++i) {
           if (info->dlpi_phdr[i].p_type == PT_LOAD) {
             uintptr_t load_bias = (info->dlpi_phdr[i].p_vaddr - info->dlpi_phdr[i].p_offset);
-            module.base = (void *)((addr_t)module.base + load_bias);
+            module.load_address = (void *)((addr_t)module.load_address + load_bias);
             break;
           }
         }

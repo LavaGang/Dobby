@@ -82,35 +82,41 @@ static int GenRelocateCodeFixed(void *buffer, AssemblyCodeChunk *origin, Assembl
       __ EmitBuffer((void *)buffer_cursor, insn.immediate_offset);
       __ Emit32(offset);
     } else if (insn.primary_opcode >= 0xE0 && insn.primary_opcode <= 0xE2) { // LOOPNZ/LOOPZ/LOOP/JECXZ
-      DEBUG_LOG("[x86 relo] %p: loop/loopcc", buffer_cursor);
+      DLOG("[x86 relo] %p: loop/loopcc", buffer_cursor);
 
       int8_t offset = insn.immediate;
       addr_t orig_dst_ip = curr_orig_ip + offset;
 
       if (insn.primary_opcode == 0xE0) { // LOOPNZ/LOOPNE
         // preserve flags, decrement RCX, restore flags
-        __ Emit<int8_t>(0x9C); // PUSHFQ
-        __ Emit<int8_t>(0x48);
-        __ Emit<int8_t>(0xFF);
-        __ Emit<int8_t>(0xC9); // DEC RCX (REX.W FF /1, ModRM=C9)
-        __ Emit<int8_t>(0x9D); // POPFQ
+        __ Emit8(0x9C); // PUSHFQ
+        __ Emit8(0x48);
+        __ Emit8(0xFF);
+        __ Emit8(0xC9); // DEC RCX (REX.W FF /1, ModRM=C9)
+        __ Emit8(0x9D); // POPFQ
 
         // if RCX == 0, skip the whole conditional jump sequence (2 + 2 + 14 = 18 bytes)
-        __ Emit<int8_t>(0xE3); // JRCXZ +18
-        __ Emit<int8_t>(18);
+        __ Emit8(0xE3); // JRCXZ +18
+        __ Emit8(18);
 
         // if ZF == 0, stage-1: short JNZ to stage-2
         const uint8_t label_jcc_cond_true_stage2 = 2;
-        __ Emit<int8_t>(0x75); // JNZ rel8
-        __ Emit<int8_t>(label_jcc_cond_true_stage2);
+        __ Emit8(0x75); // JNZ rel8
+        __ Emit8(label_jcc_cond_true_stage2);
 
         // else: short jump over the absolute jump
         const uint8_t label_cond_false = 6 + 8; // size of abs jmp
-        __ Emit<int8_t>(0xEB);                  // JMP rel8
-        __ Emit<int8_t>(label_cond_false);
+        __ Emit8(0xEB);                  // JMP rel8
+        __ Emit8(label_cond_false);
 
         // stage-2: absolute jump to original destination
-        codegen_x64_jmp_absolute_addr(code_buffer, orig_dst_ip);
+        __ EmitBuffer((void *)buffer_cursor, insn.immediate_offset);
+        __ Emit32(orig_dst_ip);
+      }
+      else {
+        // LOOPZ/LOOP
+        UNIMPLEMENTED();
+      }
     } else if (insn.primary_opcode == 0xE3) {
       // JCXZ JCEXZ JCRXZ
       UNIMPLEMENTED();
