@@ -11,18 +11,20 @@ jobs:
       matrix:
         include:
           - arch: x64
-            cmake_arch: x86_64
             rid: osx-x64
+            cmake_arch: x86_64
+            cmake_system: Darwin
           - arch: arm64
-            cmake_arch: arm64
             rid: osx-arm64
+            cmake_arch: arm64
+            cmake_system: macOS
 
     steps:
       - uses: actions/checkout@v7
 
       - name: Configure CMake
         run: |
-          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_APPLE_SILICON_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_HOST_SYSTEM_NAME=Darwin -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_APPLE_SILICON_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=${{ matrix.cmake_system }} -DCMAKE_HOST_SYSTEM_NAME=${{ matrix.cmake_system }} -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
 
       - name: Build
         run: |
