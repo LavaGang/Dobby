@@ -22,7 +22,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
 
       - name: Build
         run: |
