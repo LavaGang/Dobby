@@ -104,7 +104,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=amd64 -DCMAKE_APPLE_SILICON_PROCESSOR=amd64 -DCMAKE_HOST_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_PROCESSOR=amd64 -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build64
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_APPLE_SILICON_PROCESSOR=x86_64 -DCMAKE_HOST_SYSTEM_PROCESSOR=x86_64 -DCMAKE_SYSTEM_PROCESSOR=x86_64 -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build64
           cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_HOST_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_PROCESSOR=arm64 -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build_arm64
 
       - name: Build x64
@@ -117,7 +117,9 @@ jobs:
 
       - name: Verify architectures
         run: |
+          grep -E 'CMAKE_OSX_ARCHITECTURES|CMAKE_C_COMPILER:|CMAKE_CXX_COMPILER:' build64/CMakeCache.txt
           lipo -info build64/libdobby.a
+          grep -E 'CMAKE_OSX_ARCHITECTURES|CMAKE_C_COMPILER:|CMAKE_CXX_COMPILER:' build_arm64/CMakeCache.txt
           lipo -info build_arm64/libdobby.a
 
       - name: Collect artifacts
