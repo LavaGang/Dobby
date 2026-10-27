@@ -22,13 +22,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake \
-            -DCMAKE_OSX_SYSROOT=macosx \
-            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DDynamicBinaryInstrument=OFF \
-            -DPlugin.SymbolResolver=OFF \
-            -B build/${{ matrix.rid }}
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
 
       - name: Build
         run: |
@@ -39,14 +33,12 @@ jobs:
           lipo -info build/${{ matrix.rid }}/libdobby.a
           lipo -verify_arch ${{ matrix.cmake_arch }} build/${{ matrix.rid }}/libdobby.a
 
-      - name: Collect Artifact
+      - name: Rename Artifact
         run: |
-          mkdir -p build_result
-          cp build/${{ matrix.rid }}/libdobby.a \
-            build_result/libdobby_${{ matrix.arch }}.a
+          mv build/${{ matrix.rid }}/libdobby.a build/${{ matrix.rid }}/libdobby_${{ matrix.arch }}.a
 
-      - name: Upload Build Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
           name: MacOS.${{ matrix.arch }}
-          path: build_result/libdobby_${{ matrix.arch }}.a
+          path: build/${{ matrix.rid }}/libdobby_${{ matrix.arch }}.a
