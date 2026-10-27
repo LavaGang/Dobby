@@ -12,9 +12,11 @@ jobs:
         include:
           - arch: x64
             cmake_arch: x86_64
+            cmake_system: amd64
             rid: osx-x64
           - arch: arm64
             cmake_arch: arm64
+            cmake_system: arm64
             rid: osx-arm64
 
     steps:
@@ -22,7 +24,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_arch }} -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.cmake_system }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.cmake_system }} -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
 
       - name: Build
         run: |
