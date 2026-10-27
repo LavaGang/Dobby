@@ -114,13 +114,18 @@ jobs:
       - name: Build arm64
         run: |
           cd build_arm64 && make dobby
-          
+
+      - name: Verify architectures
+        run: |
+          lipo -info build64/libdobby.a
+          lipo -info build_arm64/libdobby.a
+
       - name: Collect artifacts
         run: |
           mkdir build_result
           cp build64/libdobby.a build_result/libdobby_x64.a
           cp build_arm64/libdobby.a build_result/libdobby_arm64.a
-          
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v7
         with:
