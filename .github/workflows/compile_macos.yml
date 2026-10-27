@@ -1,0 +1,40 @@
+on:
+  workflow_call:
+
+jobs:
+  compile_macos:
+    name: Build MacOS ${{ matrix.arch }} Binaries
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            rid: osx-x64
+          - arch: arm64
+            rid: osx-arm64
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure CMake
+        run: |
+          cmake -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DCMAKE_APPLE_SILICON_PROCESSOR=${{ matrix.arch }} -DCMAKE_HOST_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_SYSTEM_NAME=macOS -DCMAKE_HOST_SYSTEM_NAME=macOS -DCMAKE_BUILD_TYPE=Release -DDynamicBinaryInstrument=OFF -DPlugin.SymbolResolver=OFF -B build/${{ matrix.rid }}
+
+      - name: Build ${{ matrix.arch }}
+        run: |
+          cd build/${{ matrix.rid }} && make dobby
+
+      - name: Verify Architecture
+        run: |
+          lipo -info build/${{ matrix.rid }}/libdobby.a
+
+      - name: Collect Artifact
+        run: |
+          mkdir build_result
+          cp build/${{ matrix.rid }}/libdobby.a build_result/libdobby_${{ matrix.arch }}.a
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: MacOS.${{ matrix.arch }}
+          path: build/${{ matrix.rid }}/libdobby.a
