@@ -3,24 +3,17 @@
 # and include this file before calling project()
 
 # The Processor
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*|x64.*")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(amd64|AMD64|x86_64|x64)$")
   set(PROCESSOR.X86_64 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "i686.*|i386.*|x86.*|amd64.*|AMD64.*")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i686|i386|x86)$")
   set(PROCESSOR.X86 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm64.*")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm64|ARM64|aarch64|AARCH64)$")
   set(PROCESSOR.AARCH64 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64.*|AARCH64.*)")
-  set(PROCESSOR.AARCH64 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|ARM).*")
   set(PROCESSOR.ARM 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64le")
-  message(STATUS "NOT SUPPORT ${CMAKE_SYSTEM_PROCESSOR}")
-  set(PROCESSOR.PPC64LE 1)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(powerpc|ppc)64")
-  message(STATUS "NOT SUPPORT ${CMAKE_SYSTEM_PROCESSOR}")
-  set(PROCESSOR.PPC64 1)
 else()
-  message (FATAL_ERROR "Processor ${CMAKE_SYSTEM_PROCESSOR} not configured")
+  message(FATAL_ERROR
+    "Processor '${CMAKE_SYSTEM_PROCESSOR}' not configured")
 endif()
 
 # The System
