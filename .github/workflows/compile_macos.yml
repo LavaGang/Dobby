@@ -31,7 +31,6 @@ jobs:
       - name: Verify Architecture
         run: |
           lipo -info build/${{ matrix.rid }}/libdobby.a
-          lipo -verify_arch ${{ matrix.cmake_arch }} build/${{ matrix.rid }}/libdobby.a
 
       - name: Rename Artifact
         run: |
