@@ -40,7 +40,7 @@ typedef uint64_t addr64_t;
 
 // float register
 typedef union _FPReg {
-  __int128_t q;
+  uint64_t q[2];
   struct {
     double d1;
     double d2;
