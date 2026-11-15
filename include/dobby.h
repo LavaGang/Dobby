@@ -34,7 +34,7 @@ typedef uintptr_t addr_t;
 typedef uint32_t addr32_t;
 typedef uint64_t addr64_t;
 
-#if defined(__arm64__) || defined(__aarch64__)
+#if defined(_M_ARM64) || defined(__AARCH64EL__) || defined(__aarch64__) || defined(__aarch64) || defined(__arm64__) || defined(__arm64)
 
 #define ARM64_TMP_REG_NDX_0 17
 
@@ -81,7 +81,7 @@ typedef struct _RegisterContext {
     } regs;
   } floating;
 } RegisterContext;
-#elif defined(__arm__)
+#elif defined(_M_ARM) || defined(__ARMEL__) || defined(__arm__) || defined(__arm)
 typedef struct _RegisterContext {
   uint32_t dummy_0;
   uint32_t dummy_1;
@@ -180,7 +180,7 @@ int DobbyGlobalOffsetTableReplace(char *image_name, char *symbol_name, void *fak
 // [!!! READ ME !!!]
 // for arm, Arm64, dobby will use b xxx instead of ldr absolute indirect branch
 // for x64, dobby always use absolute indirect jump
-#if defined(__arm__) || defined(__arm64__) || defined(__aarch64__) || defined(_M_X64) || defined(__x86_64__)
+#if defined(_M_ARM) || defined(__ARMEL__) || defined(__arm__) || defined(__arm) || defined(_M_ARM64) || defined(__AARCH64EL__) || defined(__aarch64__) || defined(__aarch64) || defined(__arm64__) || defined(__arm64) || defined(_M_X64) || defined(__x86_64__)
 void dobby_enable_near_branch_trampoline();
 void dobby_disable_near_branch_trampoline();
 #endif
