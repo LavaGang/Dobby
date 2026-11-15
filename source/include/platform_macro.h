@@ -4,9 +4,9 @@
 #define TARGET_ARCH_X64 1
 #elif defined(_M_IX86) || defined(__i386__)
 #define TARGET_ARCH_IA32 1
-#elif defined(__AARCH64EL__) || defined(__arm64) || defined(__arm64__) || defined(__aarch64) || defined(__aarch__)
+#elif defined(_M_ARM64) || defined(__AARCH64EL__) || defined(__aarch64__) || defined(__aarch64) || defined(__arm64__) || defined(__arm64)
 #define TARGET_ARCH_ARM64 1
-#elif defined(__ARMEL__)
+#elif defined(_M_ARM) || defined(__ARMEL__) || defined(__arm__) || defined(__arm)
 #define TARGET_ARCH_ARM 1
 #elif defined(__mips64)
 #define TARGET_ARCH_MIPS64 1
